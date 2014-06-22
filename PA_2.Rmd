@@ -22,7 +22,7 @@ raw.storm.data <- read.csv(".\\data\\StormData.csv")
 
 _**Processing**_
 
-In the next phase, we start with the raw data to focus in on and clean the variables and observations of interest to the purpose of the study.
+In the next phase, we start with the raw data to focus in on and clean the variables and observations of interest to the purpose of the study. The code for this process is below, with the reasoning and light description of the approach following.
 
 ```{r process data, warning = FALSE}
 library(stringr)
@@ -172,6 +172,21 @@ storm.data$CROP.mult[storm.data$CROPDMGEXP == "?"] <- "NA"
 ## convert these multipliers to numeric class
 storm.data$PROP.mult <- as.numeric(storm.data$PROP.mult)
 storm.data$CROP.mult <- as.numeric(storm.data$CROP.mult)
+## take the product of the property/crop damage values and their multipliers to
+## get one number for the total value of each
+storm.data$prop.total <- storm.data$PROPDMG * storm.data$PROP.mult
+storm.data$crop.total <- storm.data$CROPDMG * storm.data$CROP.mult
+## add these two variables to get a total economic impact value
+storm.data$econ.total <- storm.data$prop.total + storm.data$crop.total
+## add the number of deaths and injuries to get a measure of impact on  human health
+storm.data$health.total <- storm.data$FATALITIES + storm.data$INJURIES
+## create a new variable for the year of each event
+storm.data$year <- year(storm.data$DATE)
+## subset storm data to just variables of interest for further analysis
+analysis.data <- subset(storm.data, select = c("year", "EVTYPE.groups", 
+                                               "health.total", "econ.total"))
+## lastly, only consider the complete cases of data (i.e., no NAs)
+analysis.data <- analysis.data[complete.cases(analysis.data), ]
 ```
 
 _**Analysis**_
