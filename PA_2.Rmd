@@ -225,9 +225,10 @@ To assess summary statistics, we'll first summarize the data by event and year.
 ```{r year-event summary}
 library(reshape2)
 ## melt the data to set the course for summarizine
-year.melt <- melt(analysis.data, id = c("year", "event"))
+year.melt <- melt(analysis.data, id = c("year", "event"), na.rm = TRUE)
 ## recast data into the sum by event and year
 year.cast <- dcast(year.melt, year + event ~ variable, sum)
+year.cast <- year.cast[year.cast$event != "NA", ]
 ```
 
 With this data, boxplots should help us determine which events have the greatest impact on an annual basis.
@@ -268,22 +269,23 @@ Next we examine, over the whole history of data, which events have left the grea
 Begin by summing the data by event over all years.
 
 ```{r event summary}
-## recast data into the sum by event and year
+## recast data into the sum by event
 total.cast <- dcast(year.melt, event ~ variable, sum)
+total.cast <- total.cast[total.cast$event != "NA", ]
 ```
 
 With this data, bar graphs should help us directly compare the effects of each event against each other.
 
 <figure>
 ```{r year-event bar plots, fig.width = 15, fig.height = 20}
-health.bar <- ggplot(year.cast, aes(x = event, y = health.total)) +
+health.bar <- ggplot(total.cast, aes(x = event, y = health.total)) +
       geom_bar(stat = "identity", alpha = 0.75) + 
       ggtitle("Total Fatalaties and Injuries [1950-2011]") + 
       theme(plot.title = element_text(lineheight = 0.8, face = "bold")) + 
       labs(x = "Event", y = "Number of Fatalities and Injuries") + 
       theme(axis.text.x = element_text(angle = 90, hjust = 1, lineheight = 0.7), 
             axis.text.y = element_text(lineheight = 0.7))
-econ.bar <- ggplot(year.cast, aes(x = event, y = econ.total)) +
+econ.bar <- ggplot(total.cast, aes(x = event, y = econ.total)) +
       geom_bar(stat = "identity", alpha = 0.75) + 
       ggtitle("Total Economic Impact [1950-2011]") + 
       theme(plot.title = element_text(lineheight = 0.8, face = "bold")) + 
@@ -298,7 +300,45 @@ grid.arrange(health.bar, econ.bar)
 </figure>
 </div>
 
-Confirming
+Confirming the conclusions of our analysis of summary statistics by year, looking at the total effects of each event across all years of data allows us to note excessive heat and drought as the cause behind the greatest adverse effects on human health and the economy, respectively.
 
+_Average Impacts_  
+Finally we examine this data for the events having the greatest effect on society when each event occurs. We'll assess the average casualty rate and economic impact based upon each intance of the event.
+
+```{r event average}
+## recast data into the average by event
+average.cast <- dcast(year.melt, event ~ variable, mean)
+## count the total number of occurrences of each event and merge with the recast
+## for later use in the plot
+library(plyr)
+event.count <- count(analysis.data$event)
+names(event.count) <- c("event", "freq")
+average.cast <- merge(average.cast, event.count, by = "event")
+average.cast <- average.cast[average.cast$event != "NA", ]
+```
+
+To make sense of this data and provide a summary of the data to address the question of which event has the greatest impact to society as judged by effect on human health and the economy with consideration for how often the event has occurred in our data, we use a scatter plot to identify the greatest threatening event.
+
+<figure>
+```{r event scatter plot, fig.width = 15, fig.height = 20}
+ggplot(average.cast, aes(x = health.total, y = econ.total)) +
+      geom_point(aes(size = freq), colour = "blue", alpha = 0.75) + 
+      geom_text(aes(label = event), size = 3, 
+                position = position_jitter(width = 0.1, height = 0.1)) + 
+      scale_x_log10() + 
+      scale_y_log10() +
+      ggtitle("Average Impact per Event [1950-2011]") + 
+      theme(plot.title = element_text(lineheight = 0.8, face = "bold")) + 
+      labs(x = "Log of Average Number of Fatalities and Injuries per Occurrence",
+           y = "Log of Average Economic Impact per Occurrence [$USD]",
+           size = "Count") + 
+      theme(axis.text.x = element_text(lineheight = 0.7), 
+            axis.text.y = element_text(lineheight = 0.7))
+```
+
+<div align="center">
+<figcaption>Fig. 3: Average health and ecomonic impact of each event type, with dot size indicating  frequency of occurrence.</figcaption>
+</figure>
+</div>
 
 ###Results
