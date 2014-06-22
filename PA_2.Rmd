@@ -24,7 +24,7 @@ _**Processing**_
 
 In the next phase, we start with the raw data to focus in on and clean the variables and observations of interest to the purpose of the study.
 
-```{r process data}
+```{r process data, warning = FALSE}
 library(stringr)
 ## examine the variables present in the whole dataset
 str(raw.storm.data)
@@ -152,23 +152,26 @@ unique(storm.data$PROPDMGEXP)
 unique(storm.data$CROPDMGEXP)
 ## convert combination of PROPDMG/CROPDMG numeric and PROPDMGEXP/CROPDMGEXP exponent
 ## to numerical values for further analysis:
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP %in% c("0", "+", "-", "")] <- 1
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "1"] <- 10
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP %in% c("[Hh]", "2")] <- 100
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP %in% c("[Kk]", "3")] <- 1000
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "4"] <- 10000
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "5"] <- 100000
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP %in% c("[Mm]", "6")] <- 1000000
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "7"] <- 10000000
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "8"] <- 100000000
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "[Bb]"] <- 1000000000
-storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "?"] <- "NA"
-storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "0"] <- 1
-storm.data$CROPDMGEXP[storm.data$CROPDMGEXP %in% c("[Hh]", "2")] <- 100
-storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "[Kk]"] <- 1000
-storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "[Mm]"] <- 1000000
-storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "[Bb]"] <- 1000000000
-storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "?"] <- "NA"
+storm.data$PROP.mult[storm.data$PROPDMGEXP %in% c("0", "+", "-", "")] <- 1
+storm.data$PROP.mult[storm.data$PROPDMGEXP == "1"] <- 10
+storm.data$PROP.mult[storm.data$PROPDMGEXP %in% c("[Hh]", "2")] <- 100
+storm.data$PROP.mult[storm.data$PROPDMGEXP %in% c("[Kk]", "3")] <- 1000
+storm.data$PROP.mult[storm.data$PROPDMGEXP == "4"] <- 10000
+storm.data$PROP.mult[storm.data$PROPDMGEXP == "5"] <- 100000
+storm.data$PROP.mult[storm.data$PROPDMGEXP %in% c("[Mm]", "6")] <- 1000000
+storm.data$PROP.mult[storm.data$PROPDMGEXP == "7"] <- 10000000
+storm.data$PROP.mult[storm.data$PROPDMGEXP == "8"] <- 100000000
+storm.data$PROP.mult[storm.data$PROPDMGEXP == "[Bb]"] <- 1000000000
+storm.data$PROP.mult[storm.data$PROPDMGEXP == "?"] <- "NA"
+storm.data$CROP.mult[storm.data$CROPDMGEXP %in% c("0", "")] <- 1
+storm.data$CROP.mult[storm.data$CROPDMGEXP %in% c("H", "h", "2")] <- 100
+storm.data$CROP.mult[storm.data$CROPDMGEXP %in% c("K", "k")] <- 1000
+storm.data$CROP.mult[storm.data$CROPDMGEXP %in% c("M", "m")] <- 1000000
+storm.data$CROP.mult[storm.data$CROPDMGEXP %in% c("B", "b")] <- 1000000000
+storm.data$CROP.mult[storm.data$CROPDMGEXP == "?"] <- "NA"
+## convert these multipliers to numeric class
+storm.data$PROP.mult <- as.numeric(storm.data$PROP.mult)
+storm.data$CROP.mult <- as.numeric(storm.data$CROP.mult)
 ```
 
 _**Analysis**_
