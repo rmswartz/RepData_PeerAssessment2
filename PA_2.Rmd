@@ -2,9 +2,11 @@
 
 ###Synopsis
 
+Using data from the National Oceanic and Atmospheric Administration (NOAA), this study assesses the overall impact of a variety of weather/natural disaster events upon the health and economic well being of the United States over the period from 1950 through 2011. As a result of the study, we determined that the greatest threat to population health are excessive heat events. From an economic impact perspective, droughts drive the greatest loss in economic value.
+
 ###Data Processing
 
-The following documents the steps to ingest, clean, and analyze the weather data provided by the National Oceanic and Atmospheric Administration (NOAA).  This data catalogs various weather events from 1950 thorough late 2011, as well as measures defining the impact of each storm on human health/safety and economic damage.
+The following documents the steps to ingest, clean, and analyze the weather data provided by NOAA.  This data catalogs various weather events from 1950 thorough late 2011, as well as measures defining the impact of each storm on human health/safety and economic damage.
 
 _**Data Ingestion**_
 
@@ -320,7 +322,7 @@ average.cast <- average.cast[average.cast$event != "NA", ]
 To make sense of this data and provide a summary of the data to address the question of which event has the greatest impact to society as judged by effect on human health and the economy with consideration for how often the event has occurred in our data, we use a scatter plot to identify the greatest threatening event.
 
 <figure>
-```{r event scatter plot, fig.width = 15, fig.height = 20}
+```{r event scatter plot, fig.width = 7, fig.height = 7}
 ggplot(average.cast, aes(x = health.total, y = econ.total)) +
       geom_point(aes(size = freq), colour = "blue", alpha = 0.75) + 
       geom_text(aes(label = event), size = 3, 
@@ -341,4 +343,16 @@ ggplot(average.cast, aes(x = health.total, y = econ.total)) +
 </figure>
 </div>
 
+With this view we have yet more evidence of the effects of various events on society as a whole. Hail and and wind are the most frequently occurring, but have the lowest overall impact. While drought causes by far the most economic damage, it has minimal direct effecton human health. Heat causes the greatest number of casualities, but has less of an impact that the similar frequency of occurrence events of cold and hurricanes.
+
 ###Results
+
+As a conclusion of this analysis of NOAA data, we can address the question of the events having the greatest impact on society. Using the loss of life or injury as a measure, excessive heat has the greatest adverse effect on the United States in data collected from 1950 to 2011. Using that same data, the greatest threat to the economy is affiliated with drought conditions. Considering the data in aggregate, excessive heat is the most threatening event considering the combination of highest negative impact on human health and relatively high impact on the economy as compared to other events.
+
+These conclusions are based upon the entire analysis presented here, including processing steps to categorize events. Errors or misjudgements in this process could have skewed these results, as well as errors in the original data itself. Independent evaluation of the processing steps would aid in validating the conclusions presented here.
+
+For further study, this data could be used to for a variety of other interests including:
+
+* Predictive studies on potential country-wide and local impacts from events (using geo data)
+* Analysis on the year-over-year changes in frequency of occurrence of these events and a relation to the health and economic impact
+* Similarly, the year-over-year analysis of health and economic impacts to assess the changing risk exposure of the United States to these events
