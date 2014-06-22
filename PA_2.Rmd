@@ -145,6 +145,36 @@ events <- c("COLD", "WIND", "FLOOD", "HURRICANE/TROP", "TORNADO", "WINTER PREC",
             "RAIN", "HEAT", "HAIL", "FIRE", "STORM", "COLLAPSE", "MARINE CONDITIONS",
             "LOW VIZ", "DROUGHT")
 storm.data$EVTYPE.groups[(storm.data$EVTYPE.groups %in% events) == FALSE] <- "NA"
+## with the recoding complete, convert the variable to a factor
+storm.data$EVTYPE.groups <- as.factor(storm.data$EVTYPE.groups)
+## examine the PROPDMGEXP/CROPDMGEXP to detemine how this data is characterized
+unique(storm.data$PROPDMGEXP)
+unique(storm.data$CROPDMGEXP)
+## convert combination of PROPDMG/CROPDMG numeric and PROPDMGEXP/CROPDMGEXP exponent
+## to numerical values for further analysis:
+storm.data$PROPDMGEXP[grepl("0", storm.data$PROPDMGEXP) == TRUE | 
+                      grepl("+", storm.data$PROPDMGEXP) == TRUE |
+                      grepl("-", storm.data$PROPDMGEXP) == TRUE] <- 1
+storm.data$CROPDMGEXP[grepl("0", storm.data$CROPDMGEXP) == TRUE] <- 1
+storm.data$PROPDMGEXP[grepl("1", storm.data$PROPDMGEXP) == TRUE] <- 10
+storm.data$PROPDMGEXP[grepl("[Hh]", storm.data$PROPDMGEXP) == TRUE | 
+                      grepl("2", storm.data$PROPDMGEXP) == TRUE] <- 100
+storm.data$CROPDMGEXP[grepl("[Hh]", storm.data$CROPDMGEXP) == TRUE | 
+                      grepl("2", storm.data$CROPDMGEXP) == TRUE] <- 100
+storm.data$PROPDMGEXP[grepl("[Kk]", storm.data$PROPDMGEXP) == TRUE | 
+                      grepl("3", storm.data$PROPDMGEXP) == TRUE] <- 1000
+storm.data$CROPDMGEXP[grepl("[Kk]", storm.data$CROPDMGEXP) == TRUE] <- 1000
+storm.data$PROPDMGEXP[grepl("4", storm.data$PROPDMGEXP) == TRUE] <- 10000
+storm.data$PROPDMGEXP[grepl("5", storm.data$PROPDMGEXP) == TRUE] <- 100000
+storm.data$PROPDMGEXP[grepl("[Mm]", storm.data$PROPDMGEXP) == TRUE | 
+                      grepl("6", storm.data$PROPDMGEXP) == TRUE] <- 1000000
+storm.data$CROPDMGEXP[grepl("[Mm]", storm.data$CROPDMGEXP) == TRUE] <- 1000000
+storm.data$PROPDMGEXP[grepl("7", storm.data$PROPDMGEXP) == TRUE] <- 10000000
+storm.data$PROPDMGEXP[grepl("8", storm.data$PROPDMGEXP) == TRUE] <- 100000000
+storm.data$PROPDMGEXP[grepl("[Bb]", storm.data$PROPDMGEXP) == TRUE] <- 1000000000
+storm.data$CROPDMGEXP[grepl("[Bb]", storm.data$CROPDMGEXP) == TRUE] <- 1000000000
+storm.data$PROPDMGEXP[grepl("?", storm.data$PROPDMGEXP) == TRUE] <- "NA"
+storm.data$CROPDMGEXP[grepl("?", storm.data$CROPDMGEXP) == TRUE] <- "NA"
 ```
 
 _**Analysis**_
