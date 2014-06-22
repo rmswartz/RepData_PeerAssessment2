@@ -138,9 +138,7 @@ storm.data$EVTYPE.groups[grepl("FOG", storm.data$EVTYPE.groups) == TRUE |
                          grepl("ASH", storm.data$EVTYPE.groups) == TRUE] <- "LOW VIZ"
 ## 16) convert anything referencing dry conditions to simply "DROUGHT"
 storm.data$EVTYPE.groups[grepl("[D][R][YI]", storm.data$EVTYPE.groups) == TRUE | 
-                         grepl("DROUGHT", storm.data$EVTYPE.groups) == TRUE | 
-                         grepl("[D][U][S][T]", storm.data$EVTYPE.groups) == TRUE | 
-                         grepl("ASH", storm.data$EVTYPE.groups) == TRUE] <- "DROUGHT"
+                         grepl("DROUGHT", storm.data$EVTYPE.groups) == TRUE] <- "DROUGHT"
 ## 17) create object of valid event types based on 2-16 above and mark any  
 ## other event left as "NA"
 events <- c("COLD", "WIND", "FLOOD", "HURRICANE/TROP", "TORNADO", "WINTER PREC", 
