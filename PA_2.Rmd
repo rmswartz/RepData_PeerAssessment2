@@ -47,17 +47,19 @@ storm.data$EVTYPE <- str_trim(storm.data$EVTYPE)
 ## Convert disparate EVTYPE entries to logical groups:
 ## 1) initialize new variable
 storm.data$EVTYPE.groups <- storm.data$EVTYPE
-## 2) convert anything referencing cold or chill to simply "EXTREME COLD"
+## 2) convert anything referencing cold or chill to simply "COLD"
 storm.data$EVTYPE.groups[grepl("COLD", storm.data$EVTYPE.groups) == TRUE |
                          grepl("CHILL", storm.data$EVTYPE.groups) == TRUE |
                          grepl("FREEZE", storm.data$EVTYPE.groups) == TRUE |
                          grepl("FROST", storm.data$EVTYPE.groups) == TRUE |
                          grepl("RECORD LOW", storm.data$EVTYPE.groups) == TRUE |
                          grepl("COOL", storm.data$EVTYPE.groups) == TRUE |
-                         grepl("LOW TEMPERATURE", storm.data$EVTYPE.groups) == TRUE] <- "EXTREME COLD"
+                         grepl("HYPOTHERMIA", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("LOW [T][E][M][P]", storm.data$EVTYPE.groups) == TRUE] <- "COLD"
 ## 3) convert anything referencing wind to simply "WIND"
-storm.data$EVTYPE.groups[grepl("[W][I]?[N][D]", storm.data$EVTYPE.groups) == 
-                               TRUE] <- "WIND"
+storm.data$EVTYPE.groups[grepl("[W][I]?[N][D]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("DRY MICROBURST", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("TURBULENCE", storm.data$EVTYPE.groups) == TRUE] <- "WIND"
 ## 4) convert anything referencing rising water to simply "FLOOD"
 storm.data$EVTYPE.groups[grepl("SURGE", storm.data$EVTYPE.groups) == TRUE | 
                          grepl("FLOOD", storm.data$EVTYPE.groups) == TRUE |
@@ -68,27 +70,83 @@ storm.data$EVTYPE.groups[grepl("SURGE", storm.data$EVTYPE.groups) == TRUE |
                          grepl("FLD", storm.data$EVTYPE.groups) == TRUE | 
                          grepl("SWELL", storm.data$EVTYPE.groups) == TRUE | 
                          grepl("URBAN", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("WATER", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("STREAM", storm.data$EVTYPE.groups) == TRUE |
                          grepl("DAM", storm.data$EVTYPE.groups) == TRUE] <- "FLOOD"
-## 5) convert anything referencing hurricanes to simply "HURRICANE"
+## 5) convert anything referencing hurricanes or tropical storms to simply "HURRICANE/TROP"
 storm.data$EVTYPE.groups[grepl("HURRICANE", storm.data$EVTYPE.groups) == TRUE | 
-                         grepl("TYPHOON", storm.data$EVTYPE.groups) == TRUE] <- "HURRICANE"
+                         grepl("TYPHOON", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("FLOYD", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("TROPICAL", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("[T][S][T][M]", storm.data$EVTYPE.groups) == TRUE] <- "HURRICANE/TROP"
 ## 6) convert anything referencing tornados to simply "TORNADO"
 storm.data$EVTYPE.groups[grepl("[N][A][D][O]", storm.data$EVTYPE.groups) == TRUE | 
-                         grepl("WATER SPOUT", storm.data$EVTYPE.groups) == TRUE] <- "TORNADO"
-## 7) convert anything referencing snow to simply "SNOW"
-storm.data$EVTYPE.groups[grepl("[S][N][O][W]", storm.data$EVTYPE.groups) == TRUE] <- "SNOW"
+                         grepl("[T][O][R][N]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("[S][P][O][U][T]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("FUNNEL", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("WALL CLOUD", storm.data$EVTYPE.groups) == TRUE] <- "TORNADO"
+## 7) convert anything referencing snow/ice to simply "WINTER PRECIP"
+storm.data$EVTYPE.groups[grepl("[S][N][O][W]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("WINTRY", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[I][C][EY]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("BLIZZARD", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("SLEET", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("WINTER", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[F][R][E][E][Z]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("GLAZE", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[M][I][X]", storm.data$EVTYPE.groups) == TRUE] <- "WINTER PREC"
 ## 8) convert anything referencing rain to simply "RAIN"
-storm.data$EVTYPE.groups[grepl("[R][A][I][N]", storm.data$EVTYPE.groups) == TRUE] <- "RAIN"
-## 9) convert anything referencing hot or heat to simply "EXTREME HEAT"
+storm.data$EVTYPE.groups[grepl("[R][A][I][N]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("SHOWER", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("PRECIP", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[B][U][R][S][T]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[W][E][T]", storm.data$EVTYPE.groups) == TRUE] <- "RAIN"
+## 9) convert anything referencing hot or heat to simply "HEAT"
 storm.data$EVTYPE.groups[grepl("HEAT", storm.data$EVTYPE.groups) == TRUE |
                          grepl("HOT", storm.data$EVTYPE.groups) == TRUE |
                          grepl("RECORD HIGH", storm.data$EVTYPE.groups) == TRUE |
-                         grepl("HIGH TEMPERATURE", storm.data$EVTYPE.groups) == TRUE] <- "EXTREME HEAT"
+                         grepl("HIGH", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("HYPERTHERMIA", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("WARM", storm.data$EVTYPE.groups) == TRUE] <- "HEAT"
 ## 10) convert anything referencing hail to simply "HAIL"
-storm.data$EVTYPE.groups[grepl("HEAT", storm.data$EVTYPE.groups) == TRUE |
-                         grepl("HOT", storm.data$EVTYPE.groups) == TRUE |
-                         grepl("RECORD HIGH", storm.data$EVTYPE.groups) == TRUE |
-                         grepl("HIGH TEMPERATURE", storm.data$EVTYPE.groups) == TRUE] <- "EXTREME HEAT"
+storm.data$EVTYPE.groups[grepl("HAIL", storm.data$EVTYPE.groups) == TRUE] <- "HAIL"
+## 11) convert anything referencing fire to simply "FIRE"
+storm.data$EVTYPE.groups[grepl("[F][I][R][E]", storm.data$EVTYPE.groups) == TRUE] <- "FIRE"
+## 12) convert anything referencing storms to simply "STORM"
+storm.data$EVTYPE.groups[grepl("[S][T][O][R][M]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("LIGHTNING", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("LIGHTING", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("LIGNTNING", storm.data$EVTYPE.groups) == TRUE] <- "STORM"
+## 13) convert anything referencing sliding/avalanche to simply "COLLAPSE"
+storm.data$EVTYPE.groups[grepl("AVALANC[H]?E", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("LANDSLUMP", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("EROSI[O]?N", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("ERUPTION", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("[S][L][I][D][E]", storm.data$EVTYPE.groups) == TRUE] <- "COLLAPSE"
+## 14) convert anything referencing ocean conditions to simply "MARINE CONDITIONS"
+storm.data$EVTYPE.groups[grepl("MARINE", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("CURRENT[S]?", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("DROWNING", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("RED FLAG", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("SEAS", storm.data$EVTYPE.groups) == TRUE] <- "MARINE CONDITIONS"
+## 15) convert anything referencing low visibility conditions to simply "LOW VIZ"
+storm.data$EVTYPE.groups[grepl("FOG", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("VOG", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("[D][U][S][T]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("SMOKE", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("NORTHERN LIGHTS", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("ASH", storm.data$EVTYPE.groups) == TRUE] <- "LOW VIZ"
+## 16) convert anything referencing dry conditions to simply "DROUGHT"
+storm.data$EVTYPE.groups[grepl("[D][R][YI]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("DROUGHT", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("[D][U][S][T]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("ASH", storm.data$EVTYPE.groups) == TRUE] <- "DROUGHT"
+## 17) create object of valid event types based on 2-16 above and mark any  
+## other event left as "NA"
+events <- c("COLD", "WIND", "FLOOD", "HURRICANE/TROP", "TORNADO", "WINTER PREC", 
+            "RAIN", "HEAT", "HAIL", "FIRE", "STORM", "COLLAPSE", "MARINE CONDITIONS",
+            "LOW VIZ", "DROUGHT")
+storm.data$EVTYPE.groups[(storm.data$EVTYPE.groups %in% events) == FALSE] <- "NA"
 ```
 
 _**Analysis**_
