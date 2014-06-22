@@ -152,29 +152,23 @@ unique(storm.data$PROPDMGEXP)
 unique(storm.data$CROPDMGEXP)
 ## convert combination of PROPDMG/CROPDMG numeric and PROPDMGEXP/CROPDMGEXP exponent
 ## to numerical values for further analysis:
-storm.data$PROPDMGEXP[grepl("0", storm.data$PROPDMGEXP) == TRUE | 
-                      grepl("+", storm.data$PROPDMGEXP) == TRUE |
-                      grepl("-", storm.data$PROPDMGEXP) == TRUE] <- 1
-storm.data$CROPDMGEXP[grepl("0", storm.data$CROPDMGEXP) == TRUE] <- 1
-storm.data$PROPDMGEXP[grepl("1", storm.data$PROPDMGEXP) == TRUE] <- 10
-storm.data$PROPDMGEXP[grepl("[Hh]", storm.data$PROPDMGEXP) == TRUE | 
-                      grepl("2", storm.data$PROPDMGEXP) == TRUE] <- 100
-storm.data$CROPDMGEXP[grepl("[Hh]", storm.data$CROPDMGEXP) == TRUE | 
-                      grepl("2", storm.data$CROPDMGEXP) == TRUE] <- 100
-storm.data$PROPDMGEXP[grepl("[Kk]", storm.data$PROPDMGEXP) == TRUE | 
-                      grepl("3", storm.data$PROPDMGEXP) == TRUE] <- 1000
-storm.data$CROPDMGEXP[grepl("[Kk]", storm.data$CROPDMGEXP) == TRUE] <- 1000
-storm.data$PROPDMGEXP[grepl("4", storm.data$PROPDMGEXP) == TRUE] <- 10000
-storm.data$PROPDMGEXP[grepl("5", storm.data$PROPDMGEXP) == TRUE] <- 100000
-storm.data$PROPDMGEXP[grepl("[Mm]", storm.data$PROPDMGEXP) == TRUE | 
-                      grepl("6", storm.data$PROPDMGEXP) == TRUE] <- 1000000
-storm.data$CROPDMGEXP[grepl("[Mm]", storm.data$CROPDMGEXP) == TRUE] <- 1000000
-storm.data$PROPDMGEXP[grepl("7", storm.data$PROPDMGEXP) == TRUE] <- 10000000
-storm.data$PROPDMGEXP[grepl("8", storm.data$PROPDMGEXP) == TRUE] <- 100000000
-storm.data$PROPDMGEXP[grepl("[Bb]", storm.data$PROPDMGEXP) == TRUE] <- 1000000000
-storm.data$CROPDMGEXP[grepl("[Bb]", storm.data$CROPDMGEXP) == TRUE] <- 1000000000
-storm.data$PROPDMGEXP[grepl("?", storm.data$PROPDMGEXP) == TRUE] <- "NA"
-storm.data$CROPDMGEXP[grepl("?", storm.data$CROPDMGEXP) == TRUE] <- "NA"
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP %in% c("0", "+", "-", "")] <- 1
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "1"] <- 10
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP %in% c("[Hh]", "2")] <- 100
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP %in% c("[Kk]", "3")] <- 1000
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "4"] <- 10000
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "5"] <- 100000
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP %in% c("[Mm]", "6")] <- 1000000
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "7"] <- 10000000
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "8"] <- 100000000
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "[Bb]"] <- 1000000000
+storm.data$PROPDMGEXP[storm.data$PROPDMGEXP == "?"] <- "NA"
+storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "0"] <- 1
+storm.data$CROPDMGEXP[storm.data$CROPDMGEXP %in% c("[Hh]", "2")] <- 100
+storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "[Kk]"] <- 1000
+storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "[Mm]"] <- 1000000
+storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "[Bb]"] <- 1000000000
+storm.data$CROPDMGEXP[storm.data$CROPDMGEXP == "?"] <- "NA"
 ```
 
 _**Analysis**_
