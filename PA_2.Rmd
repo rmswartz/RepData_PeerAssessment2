@@ -44,6 +44,27 @@ length(unique(storm.data$EVTYPE))
 ## leading white space
 storm.data$EVTYPE <- toupper(storm.data$EVTYPE)
 storm.data$EVTYPE <- str_trim(storm.data$EVTYPE)
+## Convert disparate EVTYPE entries to logical groups:
+## 1) initialize new variable
+storm.data$EVTYPE.groups <- storm.data$EVTYPE
+## 2) convert anything referencing cold or chill to simply "EXTREME COLD"
+storm.data$EVTYPE.groups[grepl("[C][O][L][D]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[C][H][I][L][L]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[F][R][E][E][Z][E]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[F][R][O][S][T]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("RECORD LOW", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("COOL", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("LOW TEMPERATURE", storm.data$EVTYPE.groups) == TRUE] <- "EXTREME COLD"
+## 3) convert anything referencing wind to simply "WIND"
+storm.data$EVTYPE.groups[grepl("[W][I]?[N][D]", storm.data$EVTYPE.groups) == 
+                               TRUE] <- "WIND"
+## 4) convert anything referencing rising water to simply "FLOOD"
+storm.data$EVTYPE.groups[grepl("[S][U][R][G][E]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("[F][L][O][O][D]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[W][A][V][E]", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[T][I][D][E]", storm.data$EVTYPE.groups) == TRUE | 
+                         grepl("TSUNAMI", storm.data$EVTYPE.groups) == TRUE |
+                         grepl("[S][U][R][F]", storm.data$EVTYPE.groups) == TRUE] <- "FLOOD"
 ```
 
 _**Analysis**_
