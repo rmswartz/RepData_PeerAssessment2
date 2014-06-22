@@ -1,12 +1,50 @@
-###Title
+###Severe Weather Events' Effects on Human Health and Local Economies
 
 ###Synopsis
 
 ###Data Processing
 
+The following documents the steps to ingest, clean, and analyze the weather data provided by the National Oceanic and Atmospheric Administration (NOAA).  This data catalogs various weather events from 1950 thorough late 2011, as well as measures defining the impact of each storm on human health/safety and economic damage.
+
 _**Data Ingestion**_
 
+NOAA's data is available for this study through the hosting platform cloudfront.net. Below, we note this resource and download the content directly. Noting the date and time of the download, we store the raw data after unzipping the file and pulling in the .csv file within.
+
+```{r data download, cache = TRUE, warning = FALSE}
+library(R.utils)
+library(lubridate)
+URL <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.time <- date()
+download.file(URL, ".\\data\\StormData.csv.bz2")
+bunzip2(".\\data\\StormData.csv.bz2", ".\\data\\StormData.csv")
+raw.storm.data <- read.csv(".\\data\\StormData.csv")
+```
+
 _**Processing**_
+
+In the next phase, we start with the raw data to focus in on and clean the variables and observations of interest to the purpose of the study.
+
+```{r process data}
+library(stringr)
+## examine the variables present in the whole dataset
+str(raw.storm.data)
+## subset the raw data to just the variables of interest
+storm.data <- raw.storm.data[names(raw.storm.data) %in% c("BGN_DATE", "EVTYPE", 
+                                                          "FATALITIES", "INJURIES",
+                                                          "PROPDMG", "PROPDMGEXP",
+                                                          "CROPDMG", "CROPDMGEXP",
+                                                          "REFNUM")]
+## convert the date field to the proper format
+## rename to simply DATE
+storm.data$DATE <- mdy_hms(storm.data$BGN_DATE)
+## note the discrepancy in the stated number (48) of EVTYPE categories and the 
+## number actually present
+length(unique(storm.data$EVTYPE))
+## Execute rudimentary clean up steps to handle "easy cases" of lower case and
+## leading white space
+storm.data$EVTYPE <- toupper(storm.data$EVTYPE)
+storm.data$EVTYPE <- str_trim(storm.data$EVTYPE)
+```
 
 _**Analysis**_
 
