@@ -24,8 +24,9 @@ _**Processing**_
 
 In the next phase, we start with the raw data to focus in on and clean the variables and observations of interest to the purpose of the study. The code for this process is below, with the reasoning and light description of the approach following.
 
-```{r process data, warning = FALSE}
+```{r process data, cache = TRUE, warning = FALSE}
 library(stringr)
+library(lubridate)
 ## examine the variables present in the whole dataset
 str(raw.storm.data)
 ## subset the raw data to just the variables of interest
@@ -185,10 +186,78 @@ storm.data$year <- year(storm.data$DATE)
 ## subset storm data to just variables of interest for further analysis
 analysis.data <- subset(storm.data, select = c("year", "EVTYPE.groups", 
                                                "health.total", "econ.total"))
-## lastly, only consider the complete cases of data (i.e., no NAs)
+## rename variables for simplcity
+names(analysis.data) <- c("year", "event", "health.total", "econ.total")
+## only consider the complete cases of data (i.e., no NAs)
 analysis.data <- analysis.data[complete.cases(analysis.data), ]
 ```
 
+Processing the data for this analysis involved a significant number of judgements as one might expect when dealing with a set spanning sixty one years and an untold number of contributors responsible for coallescing scattered, unstructured reports into summary content. Each challenge is documented above, but they can be summarized as:
+
+_Subsetting_  
+Although the raw data contained a great deal of ancillary variables, for this study we are only concerned with the relationship between the storm events and their effects on human health and the economy. As such, the underlying goal behind each processing step is geared towards selection of only variables that will enable our analysis of that relationship.
+
+_Class Conversions_  
+Ensuring the proper class for each variable is a simple, but notable step, throughout this processing path. Qaulitative values are converted to factors, quantitative measures are treated as numerics, and dates are made into formal date classes as a general rule set.
+
+_Categorization_  
+The most difficult portion of processing involved the decision-making in properly categorizing the various event types in this dataset. Although NOAA provides a set of forty eight possible codes for this variable, the actual data has many more due to a variety of reasons: typos, improper formatting, unique terms, or the wrong type of data such as the County in which the event occurred. Furthermore, the forty eight events  from NOAA are not truly discrete and there are many overlaps in these codes.
+
+To overcome these challenges, this analysis goes forward by converting the variety of provided event types into logical groupings of fifteen events based upon the author's knowledge of such conditions and reasonable judgement calls as defined in the code. Where the contributor's entry was so ambiguous such that it would be unreasonable to convert their input to a category, the event is considered missing and coded as NA.
+
+_Exponent Decisions_  
+Similar to the challenges present with the provided event types, the corresponding exponent fields for the property and crop damage variables ran the gamut of inconsistent entries. The processing on this data sought to convert these entries into a numerical multiplier such that the product of this variable and the damage variables could be combined for both property and crops to represent the total econonmic impact of each event. Of course, the inconsistencies required judgement calls as to the intent of the contributor, but the reasoning is contained in the code and any cases where the value was so unclear as to make any further categorization untraceable to any logical reason were considered NA.
+
+_Removing NAs_  
+Finally, after the processing steps to properly align the data, this study only considers complete observations for further analysis and generating conclusions.
+
 _**Analysis**_
+
+To address the question of which events have the greatest effect on human health and the economy, we'll examine three different analyses for conclusions:
+
+* Summary statistics for each event type for each year
+* The total impact of each event through the course of the data
+* The average impact of each event, per event
+
+To assess summary statistics, we'll first summarize the data by event and year.
+
+```{r year-event summary}
+library(reshape2)
+## melt the data to set the course for summarizine
+year.melt <- melt(analysis.data, id = c("year", "event"))
+## recast data into the sum by event and year
+year.cast <- dcast(year.melt, year + event ~ variable, sum)
+```
+
+With this data, boxplots should help us determine which events have the greatest impact on an annual basis.
+
+<figure>
+```{r year-event boxplots, fig.width = 15, fig.height = 20}
+library(ggplot2)
+library(gridExtra)
+health.box <- ggplot(year.cast, aes(x = event, y = health.total)) +
+      geom_boxplot() + 
+      ggtitle("Fatalaties and Injuries in Each Year") + 
+      theme(plot.title = element_text(lineheight=.8, face="bold")) + 
+      labs(x = "Event", y = "Number of Fatalities and Injuries") + 
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+econ.box <- ggplot(year.cast, aes(x = event, y = econ.total)) +
+      geom_boxplot() + 
+      ggtitle("Total Damage in Each Year") + 
+      theme(plot.title = element_text(lineheight=.8, face="bold")) + 
+      labs(x = "Event", y = "Total Economic Impact [$USD]") + 
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+grid.arrange(health.box, econ.box)
+```
+
+<div align="center">
+<figcaption><b>Fig. 1<b>: Summary statistics for health and ecomonic impact of each event type.</figcaption>
+</figure>
+</div>
+
+From this view, it would appear the greatest threat to human health and safety each year are heat events/excessively high temperatures.  While major events like hurricanes may get the most notoriety for such effects, the more frequently occurring and less-feared heat wave has the greater effect.
+
+With respect to economic impact, drought conditions cause the greatest amount of overally damage each year. Much of this value is likely due to crop loss, which while not as notable to the general public as property damage, is never-the-less a significant cost to society writ large.
+
 
 ###Results
